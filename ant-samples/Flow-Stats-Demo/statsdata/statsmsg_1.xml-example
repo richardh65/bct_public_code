@@ -1,0 +1,25 @@
+<WMQIStatisticsAccounting RecordType="Archive" RecordCode="MajorInterval">
+	<MessageFlow BrokerLabel="CoverageNode" BrokerUUID="cc9b78f8-78ab-404a-aceb-f499fd1fe2c5" ExecutionGroupName="CN_EG2" ExecutionGroupUUID="069af0c9-27cc-42b2-a5f7-48c70956567f" MessageFlowName="TestXMLFlow1" ApplicationName="TestStats" StartDate="2020-09-06" StartTime="23:22:04.934" GMTStartTime="2020-09-06T13:22:04.934+00:00" EndDate="2020-09-06" EndTime="23:22:48.955002" GMTEndTime="2020-09-06T13:22:48.955+00:00" TotalElapsedTime="39008" MaximumElapsedTime="3428" MinimumElapsedTime="1684" TotalCPUTime="72" MaximumCPUTime="4" MinimumCPUTime="4" CPUTimeWaitingForInputMessage="0" ElapsedTimeWaitingForInputMessage="43977637" TotalInputMessages="18" TotalSizeOfInputMessages="679302" MaximumSizeOfInputMessages="37739" MinimumSizeOfInputMessages="37739" NumberOfThreadsInPool="1" TimesMaximumNumberOfThreadsReached="18" TotalNumberOfMQErrors="0" TotalNumberOfMessagesWithErrors="0" TotalNumberOfErrorsProcessingMessages="0" TotalNumberOfTimeOutsWaitingForRepliesToAggregateMessages="0" TotalNumberOfCommits="18" TotalNumberOfBackouts="0" AccountingOrigin="Anonymous"/>
+	<Threads Number="0"/>
+	<Nodes Number="3">
+		<NodeStatistics Label="ComputeNodeFlow1" Type="ComputeNode" TotalElapsedTime="25141" MaximumElapsedTime="2004" MinimumElapsedTime="1128" TotalCPUTime="36" MaximumCPUTime="2" MinimumCPUTime="2" CountOfInvocations="18" NumberOfInputTerminals="1" NumberOfOutputTerminals="6">
+			<TerminalStatistics Label="failure" Type="Output" CountOfInvocations="0"/>
+			<TerminalStatistics Label="in" Type="Input" CountOfInvocations="18"/>
+			<TerminalStatistics Label="out" Type="Output" CountOfInvocations="18"/>
+			<TerminalStatistics Label="out1" Type="Output" CountOfInvocations="0"/>
+			<TerminalStatistics Label="out2" Type="Output" CountOfInvocations="0"/>
+			<TerminalStatistics Label="out3" Type="Output" CountOfInvocations="0"/>
+			<TerminalStatistics Label="out4" Type="Output" CountOfInvocations="0"/>
+		</NodeStatistics>
+		<NodeStatistics Label="MQ Output" Type="MQOutputNode" TotalElapsedTime="7935" MaximumElapsedTime="924" MinimumElapsedTime="263" TotalCPUTime="18" MaximumCPUTime="1" MinimumCPUTime="1" CountOfInvocations="18" NumberOfInputTerminals="1" NumberOfOutputTerminals="2">
+			<TerminalStatistics Label="failure" Type="Output" CountOfInvocations="0"/>
+			<TerminalStatistics Label="in" Type="Input" CountOfInvocations="18"/>
+			<TerminalStatistics Label="out" Type="Output" CountOfInvocations="0"/>
+		</NodeStatistics>
+		<NodeStatistics Label="Test2.in" Type="MQInputNode" TotalElapsedTime="5932" MaximumElapsedTime="709" MinimumElapsedTime="218" TotalCPUTime="18" MaximumCPUTime="1" MinimumCPUTime="1" CountOfInvocations="18" NumberOfInputTerminals="0" NumberOfOutputTerminals="3">
+			<TerminalStatistics Label="catch" Type="Output" CountOfInvocations="0"/>
+			<TerminalStatistics Label="failure" Type="Output" CountOfInvocations="0"/>
+			<TerminalStatistics Label="out" Type="Output" CountOfInvocations="18"/>
+		</NodeStatistics>
+	</Nodes>
+</WMQIStatisticsAccounting>

@@ -1,0 +1,346 @@
+﻿<?xml version="1.0"?>
+<project name="project" default="rununittests">
+
+	<!--
+	need to run 	 
+	 C:/"Program Files"/IBM/IIB/10.0.0.5/server/bin/mqsiprofile.cmd" 
+	 />
+	 
+	 debug
+	set ANT_OPTS=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5001	 
+	 -->
+	 
+	 <!--
+	 https://www.ibm.com/support/knowledgecenter/en/SSJQQ3_1.3.6/com.ibm.scapi.doc/admin_guide/c_oapi_adminguide_integrateiib_create_queue.html
+	 
+	 SET JAVA_HOME=C:\utils\Java\jdk1.8.0_102
+	 
+	 
+	 runmqsc <queueManager>
+	 define qlocal(STATS) REPLACE
+	 define sub(STATS_SUB) TOPICSTR('$SYS/Broker/+/StatisticsAccounting/Archive/#') DEST(STATS)
+	 REPLACE
+	 
+	 runmqsc testqm1
+	 define qlocal(STATS1) REPLACE
+	 define sub(STATS_SUB1) TOPICSTR('$SYS/Broker/CoverageNode/StatisticsAccounting/Archive/#') DEST(STATS1)
+	 
+	 Successfully opened WebSphere MQ Topic '$SYS/Broker/CoverageNode/Monitoring/CN_EG2/PG2' on queue manager 'testqm1'.
+	 
+	 mqsichangeflowstats <integrationNodeName> -a -c active -g -j -n advanced -t basic -b basic -o xml	 
+	 mqsichangeflowstats CoverageNode -a -c active -g -j -n advanced -t basic -b basic -o xml	 
+	 
+	 ??
+	 mqsichangetrace CoverageNode -u -e <eg_name> -f <flow_name> -l debug -c 20000 –r 	 
+	 -->
+	 
+	 <!--
+	 setps:
+	 
+	 update bar file
+	 
+	 turn on debug
+	 mqsichangetrace <broker_name> -u -e <eg_name> -f <flow_name> -l debug -c 20000 –r 
+
+	 run tests
+	 
+	 mqsireadlog <broker_name> -u -e <eg_name> -o usertrace.xml
+	 mqsiformatlog -i usertrace.xml -o usertrace.txt
+
+	 mqsichangetrace <broker_name> -u -e <eg_name> -f <flow_name> -l none -c 20000 –r	 
+	 -->
+	 
+	
+	<property name="IIB.DEPLOYBAR" value="C:/Program Files/IBM/IIB/10.0.0.5/server/bin" />
+	
+											
+		
+	<property name="IIB.EG" value="CN_EG2" />	
+	<!-- property name="IIB.EG" value="CN_EG1_NoJava" / -->		
+	<property name="IIB.RUNTIME" value="CoverageNode" />
+	<!-- property name="IIB.RUNTIME" value="No_Java_dependencies" / -->
+	<property name="BUILD.NUMBER" value="0.01" />
+	<property name="BARDIR" value="BARfiles" />
+	<property name="APP.NAME" value="Coverage1" />
+
+	
+		
+	<path id="project.classpath">		
+		<pathelement location="C:\utils\bct\MB-precise-sonarplugin-3.117.jar" />
+				
+		<pathelement location="C:\utils\bct\commons-io-2.7.jar"/>
+		<pathelement location="C:\utils\bct\commons-lang-2.6.jar"/>
+		
+		<pathelement location="C:\utils\bct\slf4j-api-1.7.5.jar"/>		
+		<pathelement location="C:\utils\bct\slf4j-jdk14-1.7.7.jar"/>	
+		<pathelement location="C:\utils\bct\commons-lang-2.6.jar"/>
+		<pathelement location="C:\utils\bct\xstream-1.4.7.jar"/>
+		<pathelement location="C:\utils\bct\plexus-utils-3.0.21.jar"/>
+		<pathelement location="C:\utils\bct\xmlpull-1.1.3.1.jar"/>
+		<pathelement location="C:\utils\bct\xpp3-1.1.3.3.jar"/>				
+		<pathelement location="C:\utils\bct\javassist-3.12.1.GA.jar"/>		
+		<pathelement location="C:\utils\bct\com.ibm.mqjms.jar"/>		
+						
+		<pathelement location="C:\utils\bct\javaparser-1.0.11.jar"/>		
+		
+		<!-- jacoco -->
+		<pathelement location="C:\utils\bct\asm-tree-7.2.jar"/>
+		<pathelement location="C:\utils\bct\asm-commons-7.2.jar"/>
+		<pathelement location="C:\utils\bct\asm-7.2.jar"/>
+		<pathelement location="C:\utils\bct\org.jacoco.report-0.8.5.jar"/>
+		<pathelement location="C:\utils\bct\org.jacoco.core-0.8.5.jar"/>
+		<pathelement location="C:\utils\bct\org.jacoco.agent-0.8.5.jar"/>
+		<pathelement location="C:\utils\bct\org.jacoco.cli-0.8.5.jar"/>
+		<pathelement location="C:\utils\bct\args4j-2.0.28.jar"/>
+    </path>
+	
+	<typedef name="instrument" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.BarFileInstrumentTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+		
+	<typedef name="consumeTrace" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.ConsumeTraceTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	<typedef name="urlTest" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.HttpTestTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	<typedef name="mqTest" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.SendMQMessageTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	<typedef name="listener" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.TestMessageListenerTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	<typedef name="stopper" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.StopTestMessageListenerTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	<property environment="env" />
+		
+<target name="init" description="">			
+		
+	
+		
+</target>			
+		
+<!--
+
+https://www.ibm.com/docs/en/app-connect/12.0?topic=toolkit-creating-test-case-from-recorded-message-flow
+https://www.ibm.com/docs/en/app-connect/12.0?topic=gtfrmimf-compiling-test-project-creating-bar-file-by-using-command-line
+
+
+https://integrationdesigners.com/blog/ace-v12-unittest-functionality/
+
+https://www.ibm.com/docs/en/integration-bus/10.0?topic=arbf-packaging-resources-that-include-java-code-message-sets
+https://www.ibm.com/docs/en/integration-bus/10.0?topic=solutions-creating-bar-file
+
+https://www.ibm.com/docs/en/app-connect/12.0?topic=commands-integrationserver-command
+
+-->
+
+<target name="mqsicreatebarsUnitTests" depends="init"> 
+
+	<property environment="env"/>
+	
+	
+	<echo message="==============================================" />
+	<echo message="running mqsicreatebar" />
+	<echo message="==============================================" />
+	
+	<!-- 
+	mqsicreatebar -data workspace -compileOnly	
+	-->
+	<!-- step 1 compiles -->
+	<exec executable="mqsicreatebar" failonerror="false" >
+			<arg value="-data"/>
+			<arg value="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1"/>			
+			<arg value="-p" />		
+			<arg value="TestSimple_Project_Test" />
+			<arg value="-compileOnly"/>			
+			<arg value="-cleanBuild"/>			
+			<arg value="-trace"/>					
+		</exec>
+		
+	<echo message="==============================================" />
+	<echo message="adding missing resources (just the root)" />
+	<echo message="==============================================" />		
+
+	
+	<zip destfile="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1\TestSimple_Project_Test\TestSimple_Project_Test.jar" update="true" >
+		<zipfileset dir="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1\TestSimple_Project_Test\src\main\resources" />
+	</zip>
+	<zip destfile="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1\TestSimple_Project_Test\TestSimple_Project_Test.jar" update="true" >
+		<zipfileset dir="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1\TestSimple_Project_Test\src\main\resources" prefix="test" />
+	</zip>	
+
+</target>
+
+
+<!-- target name="mqsipackagebarsUnitTest" depends="mqsicreatebarsUnitTests" -->
+<target name="mqsipackagebarsUnitTest" depends="mqsicreatebarsUnitTests"> 
+
+	<property environment="env"/>
+	
+		
+	<!-- step 2 packages 2 projects -->			
+	<exec dir="C:\Program Files\IBM\ACE\12.0.1.0\server\bin" executable="mqsipackagebar.bat" failonerror="true" >	
+			<arg value="-w"/>
+			<arg value="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1"/>
+			<arg value="-a"/>
+			<arg value="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1\BarFiles\UnitTests.bar"/>			
+			<arg value="-t"/>
+			<arg value="TestSimple_Project_Test"/>
+			<arg value="-k"/>
+			<arg value="TestSimple_Project"/>
+			
+		</exec>
+		
+	
+	<!-- step 3 create work directory -->
+	<echo message="delete work dir" />
+	<delete dir="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1\test_work_dir"/>
+	
+	<echo message="==============================================" />
+	<echo message="create work dir" />
+	<echo message="==============================================" />	
+	<exec dir="C:\Program Files\IBM\ACE\12.0.1.0\server\bin" executable="mqsicreateworkdir.cmd" failonerror="true" >		
+		<arg value="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1\test_work_dir"/>
+	
+	</exec>	
+	
+	
+	<echo message="==============================================" />
+	<echo message="copy trace config" />
+	<echo message="==============================================" />
+	<copy file="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1\Config\server.conf.yaml" 
+			todir="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1\test_work_dir" />
+	<echo message="==============================================" />	
+	
+	<!-- copy -->
+	<!-- echo message="==============================================" />
+	<echo message="copy project" />
+	<echo message="==============================================" / -->
+	
+	<echo message="==============================================" />
+	<echo message="copy policy" />
+	<echo message="==============================================" />
+	<copy file="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1\BarFiles\SimplePolicyTestable.bar" 
+			todir="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1\test_work_dir\run" />
+	<echo message="==============================================" />	
+
+	<echo message="==============================================" />
+	<echo message="copy project" />
+	<echo message="==============================================" />			
+	<copy file="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1\BarFiles\UnitTests.bar" 
+			todir="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1\test_work_dir\run" />
+			
+			
+	
+</target>	
+
+
+<target name="rununittests" depends="mqsipackagebarsUnitTest">
+<!-- target name="rununittests" depends="init" -->
+
+	<property environment="env"/>	
+	     
+	
+	<!--
+	IntegrationServer –work-dir /tmp/work-dir - -test-project MyIntegrationTestProject 
+- -start-msgflows false
+	-->
+	<!-- step 4 run tests -->
+	<echo message="==============================================" />
+	<echo message="runningtests" />	
+	<echo message="==============================================" />
+	
+	
+	<echo message="================================" />
+	<echo message="Running tests" />
+	<echo message="================================" />				
+			
+	<exec executable="integrationserver.exe" failonerror="true" >		
+			<arg value="--default-application-name"/>
+			<arg value="TestSimple_Project_UnitTestsApp"/>
+				
+			<arg value="--console-log"/>				
+			<arg value="--work-dir"/>
+			<arg value="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1\test_work_dir"/>
+			<arg value="--test-project"/>
+			<arg value="TestSimple_Project_Test"/>
+			<arg value="--start-msgflows"/>
+			<arg value="false"/>
+				
+			<!-- arg value="- -stop-after-duration"/>
+			<arg value="190000"/ -->
+				
+		</exec>	
+	
+	<sleep seconds="1"/>	
+
+	<echo message="================================" />
+	<echo message="Finished " />
+	<echo message="================================" />
+
+	<sleep seconds="1"/>
+	
+		
+	<antcall target="consumeTraceFile" />	
+	
+	
+	
+</target>
+
+
+<target name="consumeTraceFile" depends="init">
+	
+	<sleep seconds="2"/>
+	
+	<echo message="===============================================" />
+	<echo message="consume Trace bar file " />
+	<echo message="===============================================" />
+        	
+	
+	<java classname="au.com.bettercodingtools.sonar.messagebrokersonar.standalone.ConsumeTraceStandAlone" failonerror="true" fork="false">
+		<arg value="coveragetemp" />
+		<arg value="N" />
+		<arg value="C:\richard\projects\mb_precise_git\mb-precise-demos\workspaces\ws1\test_work_dir\config\common\log\integration_server.test_work_dir.userTrace.0.txt" />		
+		<arg value="TestSimple_Project" />
+		
+		<classpath>			
+			<path refid="project.classpath"/>
+		</classpath>
+   </java>
+   
+   <sleep seconds="10"/>
+	
+	<echo message="===============================================" />
+	<echo message="consume Trace bar file keepcoverage = true" />
+	<echo message="===============================================" />
+   
+   <!-- java classname="au.com.bettercodingtools.sonar.messagebrokersonar.standalone.ConsumeTraceStandAlone" failonerror="true" fork="true">
+		<arg value="C:\richard\projects\mb_precise_git\mb-precise-demos\Coverage-Trace3\coveragetemp" />
+		<arg value="Y" />
+		<arg value="C:\ProgramData\IBM\MQSI\Common\log\AceBroker1.Server1.userTrace.0.txt" />
+		<arg value="TestSimple_Project" />
+		
+		<classpath>			
+			<path refid="project.classpath"/>
+		</classpath>
+   </java -->	
+		   
+        
+ </target>
+ 
+  
+ 
+</project>

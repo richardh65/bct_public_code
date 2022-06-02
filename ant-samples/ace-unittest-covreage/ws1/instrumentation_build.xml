@@ -1,0 +1,278 @@
+<?xml version="1.0"?>
+<project name="project" default="run">
+
+	<!--
+	this needs to run in a Console or with this setup
+	 C:/"Program Files"/IBM/IIB/10.0.0.5/server/bin/mqsiprofile.cmd" 
+	-->
+	
+	<!--
+	 debug
+	set ANT_OPTS=-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5001	 
+	-->
+					
+
+	
+<target name="init" description="this sets up the environment that runs the ANT tasks (java code)">	
+
+	<path id="project.classpath">
+			
+		<!-- pathelement location="C:\utils\bct\MB-precise-sonarplugin-3.53.jar" / -->
+		<pathelement location="C:\utils\bct\MB-precise-sonarplugin-3.117.jar" />
+				
+		<pathelement location="C:\utils\bct\commons-io-2.7.jar"/>
+		<pathelement location="C:\utils\bct\commons-lang-2.6.jar"/>
+		
+		<pathelement location="C:\utils\bct\slf4j-api-1.7.5.jar"/>		
+		<pathelement location="C:\utils\bct\slf4j-jdk14-1.7.7.jar"/>	
+		<pathelement location="C:\utils\bct\commons-lang-2.6.jar"/>
+		<pathelement location="C:\utils\bct\xstream-1.4.7.jar"/>
+		<pathelement location="C:\utils\bct\plexus-utils-3.0.21.jar"/>
+		<pathelement location="C:\utils\bct\xmlpull-1.1.3.1.jar"/>
+		<pathelement location="C:\utils\bct\xpp3-1.1.3.3.jar"/>				
+		<pathelement location="C:\utils\bct\javassist-3.12.1.GA.jar"/>		
+		<pathelement location="C:\utils\bct\com.ibm.mqjms.jar"/>		
+						
+		<pathelement location="C:\utils\bct\javaparser-1.0.11.jar"/>		
+		
+		<!-- jacoco -->
+		<pathelement location="C:\utils\bct\asm-tree-7.2.jar"/>
+		<pathelement location="C:\utils\bct\asm-commons-7.2.jar"/>
+		<pathelement location="C:\utils\bct\asm-7.2.jar"/>
+		<pathelement location="C:\utils\bct\org.jacoco.report-0.8.5.jar"/>
+		<pathelement location="C:\utils\bct\org.jacoco.core-0.8.5.jar"/>
+		<pathelement location="C:\utils\bct\org.jacoco.agent-0.8.5.jar"/>
+		<pathelement location="C:\utils\bct\org.jacoco.cli-0.8.5.jar"/>
+		<pathelement location="C:\utils\bct\args4j-2.0.28.jar"/>
+    </path>
+
+	<!-- add the paths to the tasks we will use -->
+	<typedef name="instrument" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.BarFileInstrumentTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	<typedef name="urlTest" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.HttpTestTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	<typedef name="mqTest" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.SendMQMessageTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	
+	<typedef name="listener" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.TestMessageListenerTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	<typedef name="stopper" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.StopTestMessageListenerTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+
+	<property environment="env" />
+	
+	
+</target>
+	
+	
+  <!-- the listener records which lines in which files have been tested and needs to be runnign while the test is running -->	
+  <!-- target name="run.listener" >
+	<listener port="9011" maxWait="20" coverageFilePath="coveragetemp" />
+  </target -->	
+
+ <target name="run" description="" depends="init">
+  	
+	<antcall target="instrument.bar" />	
+		
+	<!-- needs to be parellel as it sends messages as it starts -->
+	<echo message="================================" />
+	<echo message="Starting listener and deployment" />
+	<echo message="================================" />
+	
+	<parallel>	
+		<listener port="9011" maxWait="180" coverageFilePath="coveragetemp" />
+		<sequential>
+			<echo message="Wait while listener starts...." />
+			<sleep seconds="10"/>
+			<antcall target="mqsideploybar" />
+			<echo message="================================" />
+			<echo message="Running tests" />
+			<echo message="================================" />			
+			<antcall target="runtests" />
+			<echo message="================================" />
+		</sequential>
+    </parallel>				
+	<sleep seconds="10"/>	
+	
+	
+	
+	<echo message="================================" />
+	<echo message="Finished going to run stopper" />
+	<echo message="================================" />
+
+	<sleep seconds="10"/>
+	
+	<stopper />			
+	
+ </target>
+ 
+ <!--
+ bar-refresh.links
+ <deployable deployed="true" barResourceTimeStamp="1626571062109" workspaceResource="/TestSimple_Project/mbLog-1.6.jar">
+      <deployableStatus code="0" key="DEPLOYABLE_LAST_COMPILE_STATUS" message="&#xA;Processing file TestSimple_Project\mbLog-1.6.jar.&#xA;Successfully added file TestSimple_Project\mbLog-1.6.jar to BAR file.&#xA;Elapsed time: 0 second(s).&#xA;" severity="0"/>
+      <barEntry name="mbLog-1.6.jar"/>
+    </deployable>
+ -->
+    	
+ 
+
+<!-- take a BAR and weave in the coverage reporting -->
+<target name="instrument.bar" > 
+  <echo message="Instrumenting bar file " />
+        
+  <echo message="==================================================" />
+  <echo message="instrument bars\TestCoverage.bar" />
+  <echo message="==================================================" />
+    
+  
+    <instrument workingFolder="work" 
+				sourceCode="TestSimple_Project" 
+				keepCoverage="No"  
+				barFileName="BarFiles\SimpleNonTestable.bar" 
+				coverXSL="TRUE" 
+				coverJava="FALSE" 
+				updateModuleNames="TRUE"
+				javaNodeFileName="C:/utils/bct/ibm/jplugin2-8.0.0.v20111129_1446.jar"
+				coverageFilePath="coveragetemp" 
+				buildingAce="TRUE" />
+    
+  
+ </target>
+  
+ 
+<!--
+dmpmqaut -m aceTestQM1 -t queue -n Q1
+
+dspmqaut -m aceTestQM1 -t qmgr -p Richard
+
+-->
+ 
+<!-- some example tests --> 
+ <target name="runtests" >
+	
+	
+	<echo message="Sleeping at start of test..." />	
+	<sleep seconds="2"/>
+	<echo message="Sleeping at start of test...done" />	
+	
+	
+	<!-- parallel -->		
+		<sleep seconds="1"/>	
+		<echo message="Running test: http://localhost:7800/Test1" />	
+		<urlTest url="http://localhost:7800/Test1" />		
+		<echo message="Running test: http://localhost:7800/Test1 done" />
+	
+		
+		<echo message="Running test: Test1.in - channel" />	
+		<mqTest queueName="Test1.in" queueManagerName="aceTestQM1" channelName="ACE_SVRCONN" port="1416" logMessage="TRUE" fileName="testdata\test3suburb.txt" />
+		<mqTest queueName="Test2.in" queueManagerName="aceTestQM1" channelName="ACE_SVRCONN" port="1416" logMessage="TRUE" fileName="testdata\test3suburb.txt" />
+		<mqTest queueName="Test3.in" queueManagerName="aceTestQM1" channelName="ACE_SVRCONN" port="1416" logMessage="TRUE" fileName="testdata\test3suburb.txt" />
+		<mqTest queueName="UnitTest1.in" queueManagerName="aceTestQM1" channelName="ACE_SVRCONN" port="1416" logMessage="TRUE" fileName="testdata\test3suburb.txt" />
+		
+		<mqTest queueName="UnitTest1.in" queueManagerName="aceTestQM1" channelName="ACE_SVRCONN" port="1416" logMessage="TRUE" fileName="testdata\test1.txt" />
+		
+		
+		<!-- echo message="Running test: Test1.in - username + password" />	
+		<mqTest queueName="Test1.in" queueManagerName="aceTestQM1" userName="Richard" password="" channelName="ACE_SVRCONN" port="1416" logMessage="FALSE" fileName="testdata\test1.txt" />		
+		<echo message="Running test: UnitTestExample done" />	
+		
+		<echo message="Running test: Test1.in with channel" />	
+		<mqTest queueName="Test1.in" queueManagerName="aceTestQM1" channelName="ACE_SVRCONN" port="1416" logMessage="FALSE" fileName="testdata\test1.txt" />		
+		<echo message="Running test: UnitTestExample done" />	
+		
+		
+		<echo message="Running test: Test1.in no channel" />	
+		<mqTest queueName="Test1.in" queueManagerName="aceTestQM1"  port="1416" logMessage="FALSE" fileName="testdata\test1.txt" />		
+		<echo message="Running test: UnitTestExample done" / -->	
+		
+		<!--
+		<mqTest queueName="Test1.in" queueManagerName="aceTestQM1" channelName="ACE_SVRCONN" port="1416" logMessage="TRUE" fileName="testdata\test3suburb.txt" />
+		<mqTest queueName="Test2.in" queueManagerName="aceTestQM1" channelName="ACE_SVRCONN" port="1416" logMessage="TRUE" fileName="testdata\test3suburb.txt" />
+		<mqTest queueName="UnitTest1.in" queueManagerName="aceTestQM1" channelName="ACE_SVRCONN" port="1416" logMessage="TRUE" fileName="testdata\test3suburb.txt" />
+		-->
+		
+		<!--
+		<echo message="Running test: PG1" />	
+		<mqTest queueName="Test1.in" queueManagerName="aceTestQM1"  channelName="ACE_SVRCONN" port="1416" logMessage="FALSE" fileName="testdata\test1.txt" />		
+		<echo message="Running test: TestXSL done" />	
+		
+		<echo message="Running test: PG2" />	
+		<mqTest queueName="Q2" queueManagerName="aceTestQM1" userName="Richard" channelName="ACE_SVRCONN" port="1416" logMessage="FALSE" fileName="testdata\test1.txt" />		
+		<echo message="Running test: TestXSL done" / -->	
+	
+		<!-- run again -->	
+		<!-- sleep seconds="1"/>	
+		<echo message="Running test: http://localhost:7800/Test1" />	
+		<urlTest url="http://localhost:7800/Test1" />		
+		<echo message="Running test: http://localhost:7800/Test1 done" />
+	
+		
+		<echo message="Running test: PG1" />	
+		<mqTest queueName="Q1" queueManagerName="aceTestQM1" userName="Richard" channelName="ACE_SVRCONN" port="1416" logMessage="FALSE" fileName="testdata\test1.txt" />		
+		<echo message="Running test: TestXSL done" />	
+		
+		<echo message="Running test: PG2" />	
+		<mqTest queueName="Q2" queueManagerName="aceTestQM1" userName="Richard"  channelName="ACE_SVRCONN" port="1416" logMessage="FALSE" fileName="testdata\test1.txt" />		
+		<echo message="Running test: TestXSL done" / -->			
+	<!-- /parallel -->
+	
+		
+	<sleep seconds="1"/>
+	
+	
+  </target>
+   
+
+ <!-- deploy the instumented BAR file to somewhere it can run -->
+<target name="mqsideploybar" depends="init"> 
+ 
+  <property environment="env"/>
+ 
+  <echo message="==============================================" />
+  <echo message="MQSI_WORKPATH  = ${env.MQSI_WORKPATH}" />
+  <echo message="==============================================" />
+ 
+  	<echo message="================================" />
+	  <echo message="mqsideploybar policy" />
+	  <echo message="================================" />	
+	  
+	  <exec executable="mqsideploy" failonerror="true" >
+			<arg value="AceBroker1"/>
+			<arg value="-e"/>
+			<arg value="Server1"/>
+			<arg value="-a"/>
+			<arg value="BarFiles\SimplePolicyTestable.bar"/>
+		</exec>
+	  
+	  <echo message="================================" />
+	  <echo message="mqsideploybar testable" />
+	  <echo message="================================" />	
+	
+		<exec executable="mqsideploy" failonerror="true" >
+			<arg value="AceBroker1"/>
+			<arg value="-e"/>
+			<arg value="Server1"/>
+			<arg value="-a"/>
+			<arg value="BarFiles\SimpleNonTestable-instrumented.bar"/>			
+		</exec>  
+  
+  
+	<echo message="completed deployment BarFiles\SimpleNonTestable-instrumented.bar " />
+ </target> 
+
+ 
+</project>

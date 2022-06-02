@@ -1,0 +1,353 @@
+<coverage version="1">
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow1.msgflow">
+    <lineToCover lineNumber="1" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="1">
+      <recordedLines/>
+      <parentLines/>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow1_Compute.esql">
+    <lineToCover lineNumber="4" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="2">
+      <recordedLines/>
+      <parentLines>
+        <int>4</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="20" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="3">
+      <recordedLines/>
+      <parentLines>
+        <int>20</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="24" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="4">
+      <recordedLines/>
+      <parentLines>
+        <int>20</int>
+        <int>24</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow2ComputeNodes.msgflow">
+    <lineToCover lineNumber="1" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="5">
+      <recordedLines/>
+      <parentLines/>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow2ComputeNodes_Compute.esql">
+    <lineToCover lineNumber="4" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="6">
+      <recordedLines/>
+      <parentLines>
+        <int>4</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="12" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="7">
+      <recordedLines/>
+      <parentLines>
+        <int>12</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="16" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="8">
+      <recordedLines/>
+      <parentLines>
+        <int>12</int>
+        <int>16</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="22" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="9">
+      <recordedLines/>
+      <parentLines>
+        <int>22</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow2ComputeNodes_Compute1.esql">
+    <lineToCover lineNumber="4" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="10">
+      <recordedLines/>
+      <parentLines>
+        <int>4</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="20" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="11">
+      <recordedLines/>
+      <parentLines>
+        <int>20</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="24" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="12">
+      <recordedLines/>
+      <parentLines>
+        <int>20</int>
+        <int>24</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow3FilterNode.msgflow">
+    <lineToCover lineNumber="1" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="13">
+      <recordedLines/>
+      <parentLines/>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow3FilterNode_Compute.esql">
+    <lineToCover lineNumber="4" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="14">
+      <recordedLines/>
+      <parentLines>
+        <int>4</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="20" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="15">
+      <recordedLines/>
+      <parentLines>
+        <int>20</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="24" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="16">
+      <recordedLines/>
+      <parentLines>
+        <int>20</int>
+        <int>24</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow3FilterNode_Filter.esql">
+    <lineToCover lineNumber="4" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="17">
+      <recordedLines/>
+      <parentLines>
+        <int>4</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow4DifferentParser.msgflow">
+    <lineToCover lineNumber="1" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="18">
+      <recordedLines/>
+      <parentLines/>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow4DifferentParser_Compute.esql">
+    <lineToCover lineNumber="4" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="19">
+      <recordedLines/>
+      <parentLines>
+        <int>4</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="12" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="20">
+      <recordedLines/>
+      <parentLines>
+        <int>12</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="16" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="21">
+      <recordedLines/>
+      <parentLines>
+        <int>12</int>
+        <int>16</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="22" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="22">
+      <recordedLines/>
+      <parentLines>
+        <int>22</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow4DifferentParser_ExtraCompute.esql">
+    <lineToCover lineNumber="4" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="23">
+      <recordedLines/>
+      <parentLines>
+        <int>4</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="20" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="24">
+      <recordedLines/>
+      <parentLines>
+        <int>20</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="24" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="25">
+      <recordedLines/>
+      <parentLines>
+        <int>20</int>
+        <int>24</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow5Cardinality.msgflow">
+    <lineToCover lineNumber="1" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="26">
+      <recordedLines/>
+      <parentLines/>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow5Cardinality_Compute.esql">
+    <lineToCover lineNumber="4" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="27">
+      <recordedLines/>
+      <parentLines>
+        <int>4</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="20" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="28">
+      <recordedLines/>
+      <parentLines>
+        <int>20</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="24" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="29">
+      <recordedLines/>
+      <parentLines>
+        <int>20</int>
+        <int>24</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow6CompleteParsing.msgflow">
+    <lineToCover lineNumber="1" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="30">
+      <recordedLines/>
+      <parentLines/>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow6CompleteParsing_Compute.esql">
+    <lineToCover lineNumber="4" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="31">
+      <recordedLines/>
+      <parentLines>
+        <int>4</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="20" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="32">
+      <recordedLines/>
+      <parentLines>
+        <int>20</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="24" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="33">
+      <recordedLines/>
+      <parentLines>
+        <int>20</int>
+        <int>24</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="30" covered="false" branchesToCover="0" coveredBranches="0" referenceValue="34">
+      <recordedLines/>
+      <parentLines>
+        <int>30</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow7ComputeNodeFollowedByFilterNode.msgflow">
+    <lineToCover lineNumber="1" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="35">
+      <recordedLines/>
+      <parentLines/>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow7ComputeNodeFollowedByFilterNode_Compute.esql">
+    <lineToCover lineNumber="4" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="36">
+      <recordedLines/>
+      <parentLines>
+        <int>4</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="20" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="37">
+      <recordedLines/>
+      <parentLines>
+        <int>20</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="24" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="38">
+      <recordedLines/>
+      <parentLines>
+        <int>20</int>
+        <int>24</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+    <lineToCover lineNumber="30" covered="false" branchesToCover="0" coveredBranches="0" referenceValue="39">
+      <recordedLines/>
+      <parentLines>
+        <int>30</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+  <file path="C:/richard/projects/trunk_all_broken/Demos/Flow-Stats-Demo2/TestStats/TestXMLFlow7ComputeNodeFollowedByFilterNode_Filter.esql">
+    <lineToCover lineNumber="4" covered="true" branchesToCover="0" coveredBranches="0" referenceValue="40">
+      <recordedLines/>
+      <parentLines>
+        <int>4</int>
+      </parentLines>
+      <forEachOutputs/>
+      <subMapsCalled/>
+    </lineToCover>
+  </file>
+</coverage>

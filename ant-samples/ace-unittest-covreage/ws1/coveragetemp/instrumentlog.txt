@@ -1,0 +1,122 @@
+BarFileInstrumentTask 3.117 creating task
+Set sourcodeTestSimple_Project
+Set keepCoverageValueNo
+setBarfilename
+v0.04 setBarFileName =BarFiles\SimpleNonTestable.bar
+after debug
+setBarFileName...done
+3.117 setCoveragefilepath =coveragetemp
+setCoveragefilepath..done
+setBuildingAce() :TRUE
+======================================================
+execute() called using version 3.117
+======================================================
+barFileName=BarFiles\SimpleNonTestable.bar
+barOutputFolder=null
+coverageFilePath=coveragetemp
+sequence=null
+port=9011
+address=127.0.0.1
+workingFolder=work
+keepCoverage=No
+sourceCode=TestSimple_Project
+coverXSL=TRUE
+javaNodeFileName=C:/utils/bct/ibm/jplugin2-8.0.0.v20111129_1446.jar
+updateModuleNames=TRUE
+throwErrorFromInstrumentedBarValue=
+============= checking whether to run java coverage ==================
+coverJava = false
+setupDocumentBuilder called
+setupDocumentBuilder done
+setupDocumentBuilder called
+setupDocumentBuilder done
+calling process()
+process() called
+process barFileName=BarFiles\SimpleNonTestable.bar
+process barOutputFolder=null
+version()  = 3.117
+coverJava = false
+process restofTheCodePath=[TestSimple_Project]
+contains :TestSimple_Project
+buildOtherFilesList - looking for files in TestSimple_Project
+buildOtherFilesList - is directory?:true
+extensions = [Ljava.lang.String;@17550481
+file:TestSimple_Project\mapLogging\bctMapLog.esql
+file:TestSimple_Project\SimpleNonTestable.msgflow
+file:TestSimple_Project\SimpleNonTestable_Compute.esql
+file:TestSimple_Project\SimpleTestable.msgflow
+file:TestSimple_Project\SimpleTestable_Compute.esql
+file:TestSimple_Project\test1.subflow
+file:TestSimple_Project\TestSoap_Example.msgflow
+file:TestSimple_Project\TestSoap_Example_Compute.esql
+file:TestSimple_Project\TestSoap_Example_Compute1.esql
+file:TestSimple_Project\TestSoap_Example_Compute2.esql
+file:TestSimple_Project\TestSoap_Example_Mapping.map
+file:TestSimple_Project\TestSoap_Example_Mapping2.map
+file:TestSimple_Project\TestSoap_Example_Mapping_unused.map
+file:TestSimple_Project\Test_XXE.msgflow
+file:TestSimple_Project\Test_XXE_Compute.esql
+file:TestSimple_Project\Trest_Other.msgflow
+file:TestSimple_Project\UnitTest_Example.msgflow
+file:TestSimple_Project\UnitTest_Example_Compute.esql
+================= files to be processed ================================
+bctMapLog.esql
+SimpleNonTestable.msgflow
+SimpleNonTestable_Compute.esql
+SimpleTestable.msgflow
+SimpleTestable_Compute.esql
+test1.subflow
+TestSoap_Example.msgflow
+TestSoap_Example_Compute.esql
+TestSoap_Example_Compute1.esql
+TestSoap_Example_Compute2.esql
+TestSoap_Example_Mapping.map
+TestSoap_Example_Mapping2.map
+TestSoap_Example_Mapping_unused.map
+Test_XXE.msgflow
+Test_XXE_Compute.esql
+Trest_Other.msgflow
+UnitTest_Example.msgflow
+UnitTest_Example_Compute.esql
+=====================================================================
+outputFolderName = BarFiles\SimpleNonTestable-ins
+unZipFile :BarFiles\SimpleNonTestable-ins
+FileInputStream.java at -2 in open0
+FileInputStream.java at 195 in open
+FileInputStream.java at 138 in <init>
+FileInputStream.java at 93 in <init>
+ZipUtils.java at 234 in unZipBarFile
+InstrumentBarFile.java at 2275 in process
+BarFileInstrumentTask.java at 369 in execute
+UnknownElement.java at 291 in execute
+NativeMethodAccessorImpl.java at -2 in invoke0
+NativeMethodAccessorImpl.java at 62 in invoke
+DelegatingMethodAccessorImpl.java at 43 in invoke
+Method.java at 498 in invoke
+DispatchUtils.java at 106 in execute
+Task.java at 348 in perform
+Target.java at 392 in execute
+Target.java at 413 in performTasks
+Project.java at 1399 in executeSortedTargets
+SingleCheckExecutor.java at 38 in executeTargets
+Project.java at 1251 in executeTargets
+Ant.java at 442 in execute
+CallTarget.java at 105 in execute
+UnknownElement.java at 291 in execute
+NativeMethodAccessorImpl.java at -2 in invoke0
+NativeMethodAccessorImpl.java at 62 in invoke
+DelegatingMethodAccessorImpl.java at 43 in invoke
+Method.java at 498 in invoke
+DispatchUtils.java at 106 in execute
+Task.java at 348 in perform
+Target.java at 392 in execute
+Target.java at 413 in performTasks
+Project.java at 1399 in executeSortedTargets
+Project.java at 1368 in executeTarget
+DefaultExecutor.java at 41 in executeTargets
+Project.java at 1251 in executeTargets
+Main.java at 811 in runBuild
+Main.java at 217 in startAnt
+Launcher.java at 280 in run
+Launcher.java at 109 in main
+BarFiles\SimpleNonTestable.bar (The system cannot find the file specified)

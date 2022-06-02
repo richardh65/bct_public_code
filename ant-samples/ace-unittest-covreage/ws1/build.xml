@@ -1,0 +1,239 @@
+﻿<?xml version="1.0"?>
+<project name="project" default="run">
+
+	<!--
+	 need to run from inside a ACE console 	 	 
+	 with JDK1.8
+	 SET JAVA_HOME=C:\utils\Java\jdk1.8.0_102
+	 -->
+	 
+	 <!--
+	some useful reading
+	https://www.ibm.com/docs/en/app-connect/12.0?topic=toolkit-creating-test-case-from-recorded-message-flow
+	https://www.ibm.com/docs/en/app-connect/12.0?topic=gtfrmimf-compiling-test-project-creating-bar-file-by-using-command-line
+
+	https://integrationdesigners.com/blog/ace-v12-unittest-functionality/
+
+	https://www.ibm.com/docs/en/integration-bus/10.0?topic=arbf-packaging-resources-that-include-java-code-message-sets
+	https://www.ibm.com/docs/en/integration-bus/10.0?topic=solutions-creating-bar-file
+
+	https://www.ibm.com/docs/en/app-connect/12.0?topic=commands-integrationserver-command
+	-->
+		
+	<path id="project.classpath">
+		<!-- will need to be where you copy the download to -->
+		<pathelement location="C:\utils\bct\MB-precise-sonarplugin-3.117.jar" />
+				
+		<pathelement location="C:\utils\bct\commons-io-2.7.jar"/>
+		<pathelement location="C:\utils\bct\commons-lang-2.6.jar"/>
+		
+		<pathelement location="C:\utils\bct\slf4j-api-1.7.5.jar"/>		
+		<pathelement location="C:\utils\bct\slf4j-jdk14-1.7.7.jar"/>	
+		<pathelement location="C:\utils\bct\commons-lang-2.6.jar"/>
+		<pathelement location="C:\utils\bct\xstream-1.4.7.jar"/>
+		<pathelement location="C:\utils\bct\plexus-utils-3.0.21.jar"/>
+		<pathelement location="C:\utils\bct\xmlpull-1.1.3.1.jar"/>
+		<pathelement location="C:\utils\bct\xpp3-1.1.3.3.jar"/>				
+		<pathelement location="C:\utils\bct\javassist-3.12.1.GA.jar"/>		
+		<pathelement location="C:\utils\bct\com.ibm.mqjms.jar"/>		
+						
+		<pathelement location="C:\utils\bct\javaparser-1.0.11.jar"/>		
+		
+		<!-- jacoco -->
+		<pathelement location="C:\utils\bct\asm-tree-7.2.jar"/>
+		<pathelement location="C:\utils\bct\asm-commons-7.2.jar"/>
+		<pathelement location="C:\utils\bct\asm-7.2.jar"/>
+		<pathelement location="C:\utils\bct\org.jacoco.report-0.8.5.jar"/>
+		<pathelement location="C:\utils\bct\org.jacoco.core-0.8.5.jar"/>
+		<pathelement location="C:\utils\bct\org.jacoco.agent-0.8.5.jar"/>
+		<pathelement location="C:\utils\bct\org.jacoco.cli-0.8.5.jar"/>
+		<pathelement location="C:\utils\bct\args4j-2.0.28.jar"/>
+    </path>
+	
+	<typedef name="instrument" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.BarFileInstrumentTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+		
+	
+	<typedef name="listener" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.TestMessageListenerTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	<typedef name="stopper" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.StopTestMessageListenerTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	<property environment="env" />
+		
+<target name="init" description="">			
+		
+
+		
+</target>			
+	
+
+<target name="mqsicreatebarsUnitTests" depends="init"> 
+
+	<property environment="env"/>
+	
+	
+	<echo message="==============================================" />
+	<echo message="running mqsicreatebar" />
+	<echo message="==============================================" />
+	
+	<!-- step 1 compiles java test classes-->
+	<exec executable="mqsicreatebar" failonerror="false" >
+			<arg value="-data"/>
+			<!-- workspace location -->
+			<arg value="ws1"/>
+			<arg value="-p" />		
+			<arg value="TestSimple_Project_Test" />
+			<arg value="-compileOnly"/>			
+			<arg value="-cleanBuild"/>			
+			<arg value="-trace"/>					
+		</exec>
+		
+	<echo message="==============================================" />
+	<echo message="adding missing resources (just the root) - classloading broke for us so we had to do some manual work arounds" />
+	<echo message="==============================================" />		
+	
+	<zip destfile="ws1\TestSimple_Project_Test\TestSimple_Project_Test.jar" update="true" >
+		<zipfileset dir="ws1\TestSimple_Project_Test\src\main\resources" />
+	</zip>
+		<zip destfile="ws1\TestSimple_Project_Test\TestSimple_Project_Test.jar" update="true" >
+		<zipfileset dir="ws1\TestSimple_Project_Test\src\main\resources" prefix="test" />
+	</zip>	
+
+</target>
+
+
+<target name="mqsipackagebarsUnitTest" depends="mqsicreatebarsUnitTests"> 
+
+	<property environment="env"/>	
+		
+	<!-- step 2 packages 2 projects -->			
+	<exec dir="C:\Program Files\IBM\ACE\12.0.1.0\server\bin" executable="mqsipackagebar.bat" failonerror="true" >	
+			<arg value="-w"/>
+			<arg value="ws1"/>
+			<arg value="-a"/>
+			<arg value="ws1\BarFiles\UnitTests.bar"/>			
+			<arg value="-t"/>
+			<arg value="TestSimple_Project_Test"/>
+			<arg value="-k"/>
+			<arg value="TestSimple_Project"/>
+			
+		</exec>
+		
+	
+	<!-- step 3 create work directory -->
+	<echo message="delete work dir" />
+	<delete dir="ws1\test_work_dir"/>
+	
+	<echo message="==============================================" />
+	<echo message="create work dir" />
+	<echo message="==============================================" />	
+	<exec dir="C:\Program Files\IBM\ACE\12.0.1.0\server\bin" executable="mqsicreateworkdir.cmd" failonerror="true" >		
+		<arg value="ws1\test_work_dir"/>
+	
+	</exec>	
+	
+	<!-- step 4 copy in a policy -->
+	<echo message="==============================================" />
+	<echo message="copy policy - can build your own" />
+	<echo message="==============================================" />
+	<copy file="ws1\BarFiles\SimplePolicyTestable.bar" 
+			todir="ws1\test_work_dir\run" />
+	<echo message="==============================================" />	
+	
+</target>	
+
+<target name="instrumentUnitTestbar" depends="mqsipackagebarsUnitTest"> 
+  <echo message="Instrumenting bar file " />
+        
+  <echo message="==================================================" />
+  <echo message="instrument bars\TestCoverage.bar" />
+  <echo message="==================================================" />
+    
+  <!-- step 5 instrument the bar file so we can produce profiling points for code executed -->
+  
+  <instrument workingFolder="work" 
+				sourceCode="TestSimple_Project" 
+				keepCoverage="No"  
+				barFileName="BarFiles\UnitTests.bar" 
+				coverXSL="TRUE" 
+				coverJava="FALSE" 
+				updateModuleNames="TRUE"
+				javaNodeFileName="C:/utils/bct/ibm/jplugin2-8.0.0.v20111129_1446.jar"
+				coverageFilePath="coveragetemp" 
+				buildingAce="TRUE" />
+  
+	<!-- step 6 deploy the repackaged bar file that captures test coverage -->
+  
+	<echo message="==============================================" />
+	<echo message="copy instrumented project" />
+	<echo message="==============================================" />
+	<copy file="ws1\BarFiles\UnitTests-instrumented.bar" 
+			todir="ws1\test_work_dir\run" />
+  
+  
+ </target>
+
+<target name="rununittests" depends="instrumentUnitTestbar"> 
+
+	<property environment="env"/>
+
+	<!-- step 4 run tests -->
+	<echo message="==============================================" />
+	<echo message="runningtests" />	
+	<echo message="==============================================" />
+	
+	
+	<parallel>	
+		<listener port="9011" maxWait="80" coverageFilePath="coveragetemp" />
+		<sequential>
+			<echo message="Wait while listener starts...." />
+			<sleep seconds="10"/>
+			<echo message="starting listener...done" />
+			<echo message="================================" />
+			<echo message="Running tests" />
+			<echo message="================================" />				
+			
+			<exec executable="integrationserver.exe" failonerror="true" >		
+				<arg value="--default-application-name"/>
+				<arg value="TestSimple_Project_UnitTestsApp"/>
+				
+				<arg value="--console-log"/>				
+				<arg value="--work-dir"/>
+				<arg value="ws1\test_work_dir"/>
+				<arg value="--test-project"/>
+				<arg value="TestSimple_Project_Test"/>				
+				<arg value="--start-msgflows"/>
+				<arg value="false"/>
+				
+				<arg value="--stop-after-duration"/>
+				<arg value="180000"/>				
+			</exec>	
+	
+		</sequential>
+    </parallel>				
+	<sleep seconds="1"/>	
+
+	<echo message="================================" />
+	<echo message="Finished going to run stopper" />
+	<echo message="================================" />
+
+	<sleep seconds="1"/>
+
+	<!-- stop the process which writes the coverage.xml file out -->
+	<stopper />			
+	
+		
+	<echo message="================== done ============================" />
+	
+</target>
+  
+ 
+</project>

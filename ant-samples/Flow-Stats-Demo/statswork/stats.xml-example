@@ -1,0 +1,41 @@
+<stats createdDate="2020-09-16 11:31:21.456 UTC">
+  <flow flowName="TestXMLFlow5Cardinality" totalInputMessages="126" totalElapsedTime="9501" totalCPUTime="18118">
+    <node label="Compute" type="ComputeNode" countOfInvocations="126" totalElapsedTime="187552" totalCPUTime="17333"/>
+    <node label="MQ Input" type="MQInputNode" countOfInvocations="126" totalElapsedTime="40335" totalCPUTime="352"/>
+    <node label="MQ Output" type="MQOutputNode" countOfInvocations="126" totalElapsedTime="71614" totalCPUTime="433"/>
+  </flow>
+  <flow flowName="TestXMLFlow4DifferentParser" totalInputMessages="126" totalElapsedTime="406324" totalCPUTime="29916">
+    <node label="Compute" type="ComputeNode" countOfInvocations="126" totalElapsedTime="160420" totalCPUTime="15208"/>
+    <node label="ExtraCompute" type="ComputeNode" countOfInvocations="126" totalElapsedTime="134900" totalCPUTime="13863"/>
+    <node label="MQ Input" type="MQInputNode" countOfInvocations="126" totalElapsedTime="44528" totalCPUTime="445"/>
+    <node label="MQ Output" type="MQOutputNode" countOfInvocations="126" totalElapsedTime="66476" totalCPUTime="400"/>
+  </flow>
+  <flow flowName="TestXMLFlow2ComputeNodes" totalInputMessages="126" totalElapsedTime="842280" totalCPUTime="27686">
+    <node label="Compute" type="ComputeNode" countOfInvocations="126" totalElapsedTime="163037" totalCPUTime="11226"/>
+    <node label="ExtraCompute1" type="ComputeNode" countOfInvocations="126" totalElapsedTime="156981" totalCPUTime="14568"/>
+    <node label="MQ Input" type="MQInputNode" countOfInvocations="126" totalElapsedTime="46057" totalCPUTime="126"/>
+    <node label="MQ Output" type="MQOutputNode" countOfInvocations="126" totalElapsedTime="76205" totalCPUTime="1766"/>
+  </flow>
+  <flow flowName="TestXMLFlow6CompleteParsing" totalInputMessages="126" totalElapsedTime="267074" totalCPUTime="22422">
+    <node label="Compute" type="ComputeNode" countOfInvocations="126" totalElapsedTime="156209" totalCPUTime="21810"/>
+    <node label="MQ Input" type="MQInputNode" countOfInvocations="126" totalElapsedTime="49219" totalCPUTime="126"/>
+    <node label="MQ Output" type="MQOutputNode" countOfInvocations="126" totalElapsedTime="61646" totalCPUTime="486"/>
+  </flow>
+  <flow flowName="TestXMLFlow1" totalInputMessages="126" totalElapsedTime="291006" totalCPUTime="18566">
+    <node label="ComputeNodeFlow1" type="ComputeNode" countOfInvocations="126" totalElapsedTime="185931" totalCPUTime="17429"/>
+    <node label="MQ Output" type="MQOutputNode" countOfInvocations="126" totalElapsedTime="57950" totalCPUTime="715"/>
+    <node label="Test2.in" type="MQInputNode" countOfInvocations="126" totalElapsedTime="47125" totalCPUTime="422"/>
+  </flow>
+  <flow flowName="TestXMLFlow3FilterNode" totalInputMessages="126" totalElapsedTime="104640" totalCPUTime="19000">
+    <node label="ComputeNodeFlow3" type="ComputeNode" countOfInvocations="126" totalElapsedTime="164511" totalCPUTime="16185"/>
+    <node label="ExtraFilterNodeBeforeComputeNode" type="FilterNode" countOfInvocations="126" totalElapsedTime="28137" totalCPUTime="1169"/>
+    <node label="MQ Input" type="MQInputNode" countOfInvocations="126" totalElapsedTime="43576" totalCPUTime="437"/>
+    <node label="MQ Output" type="MQOutputNode" countOfInvocations="126" totalElapsedTime="68416" totalCPUTime="1209"/>
+  </flow>
+  <flow flowName="TestXMLFlow7ComputeNodeFollowedByFilterNode" totalInputMessages="126" totalElapsedTime="293136" totalCPUTime="23763">
+    <node label="ComputeFlow7" type="ComputeNode" countOfInvocations="126" totalElapsedTime="188920" totalCPUTime="22538"/>
+    <node label="ExtraFilterNodeAfterComputeNode" type="FilterNode" countOfInvocations="126" totalElapsedTime="10578" totalCPUTime="324"/>
+    <node label="MQ Input" type="MQInputNode" countOfInvocations="126" totalElapsedTime="37140" totalCPUTime="126"/>
+    <node label="MQ Output" type="MQOutputNode" countOfInvocations="126" totalElapsedTime="56498" totalCPUTime="775"/>
+  </flow>
+</stats>

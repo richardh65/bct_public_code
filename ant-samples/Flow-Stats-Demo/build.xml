@@ -1,0 +1,578 @@
+﻿<?xml version="1.0"?>
+<project name="project" default="run">
+
+	<!--
+	As this runs in the context of the MQSI environment, you need to setup the environment first
+	 C:/"Program Files"/IBM/IIB/10.0.0.5/server/bin/mqsiprofile.cmd" 
+	 />	 
+	 -->
+	 
+	 <!--
+	 
+	 To allow the statistics to be collected, you need create specific queues.
+	 This is the official IBM documentation on how to set this up:	 
+	 https://www.ibm.com/support/knowledgecenter/en/SSJQQ3_1.3.6/com.ibm.scapi.doc/admin_guide/c_oapi_adminguide_integrateiib_create_queue.html
+	 
+	 runmqsc <queueManager>
+	 define qlocal(STATS) REPLACE
+	 define sub(STATS_SUB) TOPICSTR('$SYS/Broker/+/StatisticsAccounting/Archive/#') DEST(STATS)
+	 REPLACE
+	 
+	 runmqsc testqm1
+	 define qlocal(STATS1) REPLACE
+	 define sub(STATS_SUB1) TOPICSTR('$SYS/Broker/CoverageNode/StatisticsAccounting/Archive/#') DEST(STATS1)
+	 
+	 Successfully opened WebSphere MQ Topic '$SYS/Broker/CoverageNode/Monitoring/CN_EG2/PG2' on queue manager 'testqm1'.
+	 
+	 mqsichangeflowstats <integrationNodeName> -a -c active -g -j -n advanced -t basic -b basic -o xml	 
+	 mqsichangeflowstats CoverageNode -a -c active -g -j -n advanced -t basic -b basic -o xml	 
+	 
+	 ??
+	 mqsichangetrace CoverageNode -u -e <eg_name> -f <flow_name> -l debug -c 20000 –r 	 
+	 -->
+	 
+	 <!--
+	 setps:
+	 
+	 update bar file
+	 
+	 turn on debug
+	 mqsichangetrace <broker_name> -u -e <eg_name> -f <flow_name> -l debug -c 20000 –r 
+
+	 run tests
+	 
+	 mqsireadlog <broker_name> -u -e <eg_name> -o usertrace.xml
+	 mqsiformatlog -i usertrace.xml -o usertrace.txt
+
+	 mqsichangetrace <broker_name> -u -e <eg_name> -f <flow_name> -l none -c 20000 –r	 
+	 -->
+	 
+	
+	<property name="IIB.DEPLOYBAR" value="C:/Program Files/IBM/IIB/10.0.0.5/server/bin" />
+	
+												
+		
+	<property name="IIB.EG" value="CN_EG2" />		
+	<property name="IIB.RUNTIME" value="CoverageNode" />	
+	<property name="BUILD.NUMBER" value="0.01" />
+	<property name="BARDIR" value="bars" />
+	<property name="APP.NAME" value="Coverage1" />
+
+	
+		
+	<path id="project.classpath">
+		<!-- our jar file that contains the required ant tasks / standalone java classes -->
+		<pathelement location="C:\utils\bct\MB-precise-sonarplugin-3.109.jar" />
+		
+		<!-- leverage MQ classes for sending messages to trigger test cases -->
+		<pathelement location="C:\utils\bct\com.ibm.mq.allclient.jar"/>
+		<pathelement location="C:\utils\bct\javax.jms-api-2.0.1.jar"/>
+		<pathelement location="C:\utils\bct\com.ibm.mqjms-6.0.jar"/>
+		
+		<!-- required dependencies for ant tasks -->
+		<pathelement location="C:\utils\bct\commons-io-2.7.jar"/>
+		<pathelement location="C:\utils\bct\commons-lang-2.6.jar"/>
+		<pathelement location="C:\utils\bct\commons-collections-3.2.1.jar"/>
+		
+		<pathelement location="C:\utils\bct\slf4j-api-1.7.5.jar"/>		
+		<pathelement location="C:\utils\bct\slf4j-jdk14-1.7.7.jar"/>	
+		<pathelement location="C:\utils\bct\xstream-1.4.7.jar"/>
+		<pathelement location="C:\utils\bct\xmlpull-1.1.3.1.jar"/>
+		
+		<pathelement location="C:\utils\bct\plexus-utils-3.0.21.jar"/>
+		<pathelement location="C:\utils\bct\xpp3-1.1.3.3.jar"/>				
+		
+    </path>
+
+		
+	<typedef name="consumeTrace" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.ConsumeTraceTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	<typedef name="urlTest" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.HttpTestTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	<typedef name="mqTest" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.SendMQMessageTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	<typedef name="clearMessagesFromQueue" 		 
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.ClearMQMessagesTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	
+	<typedef name="processFlowStatsFromQueue"
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.ProcessFlowStatsFromQueueTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	
+	<typedef name="processFlowStatsXMLFile"
+		 classname="au.com.bettercodingtools.sonar.messagebrokersonar.anttasks.ProcessFlowStatsXMLFileTask" >
+		<classpath refid="project.classpath" />
+	</typedef>
+	
+	<property environment="env" />
+		
+<target name="init" description="">			
+		
+</target>
+	
+	
+<target name="mqsideploybar" depends="init"> 
+ 
+  <property environment="env"/>
+ 
+  <echo message="==============================================" />
+  <echo message="MQSI_WORKPATH  = ${env.MQSI_WORKPATH}" />
+  <echo message="==============================================" />
+ 
+  <echo message="Deploying Broker Archive file: ${APP.NAME}-${BUILD.NUMBER}.bar " />  
+  
+  <java classname="com.ibm.broker.config.util.Deploy" failonerror="true" fork="true">
+   <arg value="${IIB.RUNTIME}" />
+   <arg value="-e" />
+   <arg value="${IIB.EG}" />
+   <arg value="-a" />   
+   <arg value="BARfiles\TestStats1.bar" />   
+	<classpath>
+		<fileset dir="C:/Program Files/IBM/IIB/10.0.0.5/tools/plugins/com.ibm.etools.mft.config_10.0.500">
+			<include name="**/*.jar"/>
+		</fileset>
+	</classpath>
+   </java>
+  
+  <echo message="Completed building Broker Archive file - ${APP.NAME}-${BUILD.NUMBER}.bar " />
+ </target> 
+
+ <target name="run" description="end to end deployment and tests" depends="">
+ 
+	
+	<antcall target="init" />
+	
+	<echo message="===============================================" />
+	<echo message="ProcessFlowStatsFromQueueStandAlone" />
+	<echo message="===============================================" />
+   
+		
+	<echo message="make sure broker is running" />
+	<exec executable="mqsistart">
+		<arg value="CoverageNode"/>
+	</exec>
+	
+	<antcall target="mqsideploybar" />	
+	
+	<!-- these only need to be done once per test environment -->	
+	<echo message="stop broker so that we can change the stats interval" />
+	<exec executable="mqsistop">
+		<arg value="CoverageNode"/>
+	</exec>
+	
+	
+	<echo message="setting stats interval on broker (1 minute)" />	
+	<exec executable="mqsichangebroker">
+		<arg value="CoverageNode"/>		
+		<arg value="-v"/>
+		<arg value="1"/>				
+	</exec>
+	
+
+	<echo message="restart the broker with new interval" />
+	<exec executable="mqsistart">
+		<arg value="CoverageNode"/>
+	</exec>	
+	
+	
+	<echo message="================================" />
+	<echo message="turn on tracing but clear the current trace" />
+	<echo message="================================" />
+
+	<exec executable="mqsichangetrace">
+		<arg value="CoverageNode"/>
+		<arg value="-u"/>
+		<arg value="-e"/>
+		<arg value="CN_EG2"/>
+		<arg value="-l"/>
+		<arg value="debug"/>
+		<arg value="-c"/>
+		<arg value="20000"/>
+		<arg value="-r"/>
+	</exec>
+
+	<echo message="================================" />
+	<echo message="clear existing stats messages from queue" />
+	<echo message="================================" />
+			
+	<!-- start with fresh stats -->
+	<clearMessagesFromQueue queueNameToClear="STATS" queueManagerName="testqm1" channelName="test.channel" port="1414"  />				
+	
+	
+	<echo message="running mqsichangeflowstats" />
+	<exec executable="mqsichangeflowstats">
+		<arg value="CoverageNode"/>
+		<arg value="-e"/>
+		<arg value="CN_EG2"/>
+		<arg value="-j"/>
+		<arg value="-a"/>
+		<arg value="-c"/>
+		<arg value="active"/>
+		<arg value="-n"/>
+		<arg value="advanced"/>
+		<arg value="-o"/>
+		<arg value="usertrace,xml"/>
+		<arg value="-r"/>		
+	</exec>
+	
+	<echo message="cleaning up statsdata" />
+	<delete dir="statsdata"/>
+	
+	<echo message="creating new statsdata" />
+	<mkdir dir="statsdata"/>
+	
+	
+	
+	<echo message="================================" />
+	<echo message="running tests" />
+	<echo message="================================" />
+
+	
+	<!-- trigger our tests -->
+	<antcall target="runtests_smallmsg">		
+			<param name="fileName" value="testdata\test1_larger2.txt"/>
+		</antcall>
+		<antcall target="runtests_smallmsg">		
+			<param name="fileName" value="testdata\test1_larger2.txt"/>
+		</antcall>		
+		<antcall target="runtests_smallmsg">		
+			<param name="fileName" value="testdata\test1_larger2.txt"/>
+		</antcall>
+		<antcall target="runtests_smallmsg">		
+			<param name="fileName" value="testdata\test1_larger2.txt"/>
+		</antcall>
+		
+		<antcall target="runtests_smallmsg">		
+			<param name="fileName" value="testdata\test1_larger2.txt"/>
+		</antcall>
+		
+		<antcall target="runtests_smallmsg">		
+			<param name="fileName" value="testdata\test1_larger2.txt"/>
+		</antcall>
+		
+		<antcall target="runtests_smallmsg">		
+			<param name="fileName" value="testdata\test1_larger2.txt"/>
+		</antcall>
+		
+		<antcall target="runtests_smallmsg">		
+			<param name="fileName" value="testdata\test1_larger2.txt"/>
+		</antcall>
+		
+		<antcall target="runtests_smallmsg">		
+			<param name="fileName" value="testdata\test1_larger2.txt"/>
+		</antcall>
+
+	<sleep seconds="1"/>
+	
+	<echo message="================================" />
+	<echo message="sleeping to collect stats (3 minutes - 2 set +2 extra) - disabled" />
+	<echo message="================================" />
+	<sleep seconds="240"/>
+	<echo message="done...." />
+	
+	<echo message="================================" />
+	<echo message="pulling stats" />
+	<echo message="================================" />	
+	
+	<!-- extract stats from queue and process them into a common XML file format -->
+	<processFlowStatsFromQueue statsQueueName="STATS" queueManagerName="testqm1" channelName="test.channel" port="1414" outputMessageFolderName="statsdata" />				
+	
+	<echo message="================================" />
+	<echo message="pulling stats...done" />
+	<echo message="================================" />	
+	
+	<echo message="================================" />
+	<echo message="Converting XML files to stats.xml" />
+	<echo message="================================" />	
+	
+	<processFlowStatsXMLFile inputMessageFolderName="statsdata" statsOutputFilePath="statswork" />				
+	
+	<echo message="================================" />
+	<echo message="Converting XML files to stats.xml...done" />
+	<echo message="================================" />	
+	
+	
+	<echo message="================================" />
+	<echo message="Generate logs (xml)" />
+	<echo message="================================" />
+	
+	<exec executable="mqsireadlog">
+		<arg value="CoverageNode"/>
+		<arg value="-u"/>
+		<arg value="-e"/>
+		<arg value="CN_EG2"/>
+		<arg value="-o"/>
+		<arg value="trace_file\usertrace.xml"/>		
+	</exec>
+	
+	<echo message="================================" />
+	<echo message="Generate logs (txt)" />
+	<echo message="================================" />
+	
+	<exec executable="mqsiformatlog">
+		<arg value="-i"/>
+		<arg value="trace_file\usertrace.xml"/>
+		<arg value="-o"/>
+		<arg value="trace_file\usertrace.txt"/>		
+	</exec>
+	
+
+	<echo message="================================" />
+	<echo message="Turn off tracing" />
+	<echo message="================================" />		
+	
+	<exec executable="mqsichangetrace">
+		<arg value="CoverageNode"/>
+		<arg value="-u"/>
+		<arg value="-e"/>
+		<arg value="CN_EG2"/>
+		<arg value="-l"/>
+		<arg value="none"/>
+		<arg value="-c"/>
+		<arg value="20000"/>
+		<arg value="-r"/>
+	</exec>
+	
+	
+	
+	<echo message="================================" />
+	<echo message="Consume trace file" />
+	<echo message="================================" />		
+		
+	<antcall target="consumeTraceFile" />	
+	
+	
+ </target>
+ 
+
+<target name="consumeTraceFile" depends="init">
+	
+	<sleep seconds="2"/>
+	
+	<echo message="===============================================" />
+	<echo message="consume Trace bar file " />
+	<echo message="===============================================" />
+        
+	<!--
+		The first of these is for when you have a single EX group that you are working with.
+		If you have multiple EG's then you need to aggregate the coverage from multiple files. 
+	-->
+	
+	<java classname="au.com.bettercodingtools.sonar.messagebrokersonar.standalone.ConsumeTraceStandAlone" failonerror="true" fork="false">
+		<arg value="C:\richard\projects\trunk_all_broken\Demos\Flow-Stats-Demo2\coveragetemp" />
+		<arg value="N" />
+		<arg value="C:\richard\projects\trunk_all_broken\Demos\Flow-Stats-Demo2\trace_file\usertrace.txt" />
+		<arg value="C:\richard\projects\trunk_all_broken\Demos\Flow-Stats-Demo2\TestStats" />
+		
+		<classpath>			
+			<path refid="project.classpath"/>
+		</classpath>
+   </java>
+   
+   <sleep seconds="1"/>
+	
+	<!--
+	<echo message="===============================================" />
+	<echo message="consume Trace bar file keepcoverage = true" />
+	<echo message="===============================================" />
+   <java classname="au.com.bettercodingtools.sonar.messagebrokersonar.standalone.ConsumeTraceStandAlone" failonerror="true" fork="true">
+		<arg value="C:\richard\projects\trunk_all_broken\Demos\Flow-Stats-Demo2\coveragetemp" />
+		<arg value="Y" />
+		<arg value="C:\richard\projects\trunk_all_broken\Demos\Flow-Stats-Demo2\trace_file\usertrace.txt" />
+		<arg value="C:\richard\projects\trunk_all_broken\Demos\Flow-Stats-Demo2\TestStats" />
+		
+		<classpath>			
+			<path refid="project.classpath"/>
+		</classpath>
+   </java>
+   -->
+	
+	<!-- the same process but using the Ant task -->
+    <!-- consumeTrace  
+				sourceCode="TestCoverage" 
+				traceFilePath="trace_file/usertrace.txt"
+				keepCoverage="No"  												
+				coverageFilePath="coveragetemp" / -->
+        
+ </target>
+   
+  
+  <target name="runtests_smallmsg" >
+		
+	<echo message="Sleeping at start of test..." />	
+	<sleep seconds="1"/>
+	<echo message="Sleeping at start of test...done" />	
+	
+	<!-- these could all be run in parellel but that can affect the stats collection. We want them to each run in sequence so that stats are more indepenendent of what else is running	
+	<parallel -->
+
+		<!-- triggering a test using a Http Get request to a URL example -->
+		<!-- echo message="Running test: http://localhost:7800/Test1" />	
+		<urlTest url="http://localhost:7800/Test1" / -->							
+				
+		<mqTest queueName="Test1.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />		
+		<mqTest queueName="Test2.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />				
+		<sleep seconds="1"/>
+		<mqTest queueName="Test3.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test4.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test5.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test6.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test7.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>
+		
+		<mqTest queueName="Test7.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>
+		<mqTest queueName="Test1.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />		
+		<mqTest queueName="Test2.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test3.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>
+		<mqTest queueName="Test4.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test5.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test6.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>
+		
+		<mqTest queueName="Test6.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test7.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test1.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />		
+		<mqTest queueName="Test2.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test3.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />							
+		<mqTest queueName="Test4.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test5.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		
+		<sleep seconds="1"/>		
+		<mqTest queueName="Test5.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test6.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test7.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>
+		<mqTest queueName="Test1.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />		
+		<mqTest queueName="Test2.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test3.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test4.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>		
+		
+		<mqTest queueName="Test4.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test5.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>		
+		<mqTest queueName="Test6.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test7.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>
+		<mqTest queueName="Test1.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />	
+		<mqTest queueName="Test2.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test3.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<sleep seconds="1"/>
+		
+		<mqTest queueName="Test4.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test3.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test2.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />				
+		<sleep seconds="1"/>
+		<mqTest queueName="Test6.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test7.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test1.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />		
+		<mqTest queueName="Test5.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>
+		
+		<mqTest queueName="Test5.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>
+		<mqTest queueName="Test4.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test3.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test2.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test6.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>
+		<mqTest queueName="Test7.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test1.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />
+		<sleep seconds="1"/>		
+		
+		<mqTest queueName="Test1.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />
+		<sleep seconds="1"/>		
+		<mqTest queueName="Test5.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test4.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test3.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />				
+		<sleep seconds="1"/>
+		<mqTest queueName="Test2.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test6.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test7.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>
+		
+		
+		<mqTest queueName="Test7.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test2.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />				
+		<sleep seconds="1"/>
+		<mqTest queueName="Test6.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test4.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>
+		<mqTest queueName="Test1.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test5.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test3.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />				
+		<sleep seconds="1"/>		
+		
+		<mqTest queueName="Test6.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test7.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test4.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test5.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test2.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test3.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test1.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />				
+		<sleep seconds="1"/>
+		
+		<mqTest queueName="Test7.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>
+		<mqTest queueName="Test6.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test5.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test4.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test3.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test2.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test1.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />				
+		<sleep seconds="1"/>
+		
+		<mqTest queueName="Test3.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test6.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test7.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>		
+		<mqTest queueName="Test5.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test4.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />				
+		<sleep seconds="1"/>
+		<mqTest queueName="Test1.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test2.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<sleep seconds="1"/>		
+		
+		<mqTest queueName="Test5.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test3.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test6.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test7.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test1.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test2.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test4.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />				
+		<sleep seconds="1"/>
+		
+		<sleep seconds="1"/>		
+		<mqTest queueName="Test3.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />				
+		<mqTest queueName="Test5.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />										
+		<mqTest queueName="Test6.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test7.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test1.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />						
+		<mqTest queueName="Test2.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />								
+		<mqTest queueName="Test4.in" queueManagerName="testqm1" channelName="test.channel" port="1414" logMessage="FALSE" fileName="${fileName}" />				
+		<sleep seconds="1"/>
+		
+		
+	<!-- /parallel -->
+			
+	<sleep seconds="1"/>		
+		
+  </target>
+  	
+ 
+</project>
